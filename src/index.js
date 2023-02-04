@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import {
-    getFirestore, collection, getDocs,
-    addDoc
+    getFirestore, collection, onSnapshot,
+    addDoc, deleteDoc, doc
 } from 'firebase/firestore'
 const firebaseConfig = {
     apiKey: "AIzaSyBZAidQLhE_kW5s3jMh_3s8utXQM0hW5ds",
@@ -24,45 +24,46 @@ const db = getFirestore()
 const colRef = collection(db, 'books')
 
 
-//get collection data
-getDocs(colRef)
-    .then((snapshot) => {
-        let books = [];
-        snapshot.docs.forEach((doc) => {
-            books.push({ ...doc.data(), id: doc.id })
+//real time collection data
+onSnapshot(colRef, (snapshot) => {
+    let books = [];
+    snapshot.docs.forEach((doc) => {
+        books.push({ ...doc.data(), id: doc.id })
+    })
+    console.log(books)
+   })
+
+
+//adding documents
+const addBookForm = document.querySelector('.add');
+
+addBookForm.addEventListener('submit', (e) => {
+    e.preventDefault()
+
+    addDoc(colRef, {
+        title: addBookForm.title.value,
+        author: addBookForm.author.value,
+    })
+        .then(() => {
+            addBookForm.reset()
         })
 
-        console.log(books)
-    })
-    .catch((err) => {
-        console.log(err.message)
+});
 
 
-        //adding documents
-        const addBookForm = document.querySelector('.add');
+//deleting documents
+const deleteBookForm = document.querySelector('.delete');
 
-        console.log(addBookForm)
+deleteBookForm.addEventListener('submit', (e) => {
+    e.preventDefault();
 
-        addBookForm.addEventListener('submit', (e) => {
-            e.preventDefault()
+    const docRef = doc(db, 'books', deleteBookForm.id.value);
 
-            addDoc(colRef, {
-                title: addBookForm.title.value,
-                author: addBookForm.author.value,
-            })
-                .then(() => {
-                    addBookForm.reset()
-                })
+    deleteDoc(docRef)
+        .then(() => {
+            deleteBookForm.reset()
+        })
 
-        });
+});
 
-        //deleting documents
-        const deleteBookForm = document.querySelector('.delete');
-        deleteBookForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-
-        });
-
-    });
 
