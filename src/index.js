@@ -1,20 +1,19 @@
 import { initializeApp } from 'firebase/app'
 import {
-    getFirestore, collection, getDocs, snapshot
+    getFirestore, collection, getDocs,
+    addDoc
 } from 'firebase/firestore'
-
-
 const firebaseConfig = {
-    apiKey: "AIzaSyBaYwyK_KvdPycg5f5wRAwHR43h6toVvMc",
-    authDomain: "fir-9-mrwest.firebaseapp.com",
-    projectId: "fir-9-mrwest",
-    storageBucket: "fir-9-mrwest.appspot.com",
-    messagingSenderId: "579672864947",
-    appId: "1:579672864947:web:2686db9a3ce03ab27958c6"
-}
+    apiKey: "AIzaSyBZAidQLhE_kW5s3jMh_3s8utXQM0hW5ds",
+    authDomain: "new-project-2243a.firebaseapp.com",
+    projectId: "new-project-2243a",
+    storageBucket: "new-project-2243a.appspot.com",
+    messagingSenderId: "140653278468",
+    appId: "1:140653278468:web:0cede46050474a358e0c51"
+};
 
 //init firebase app
-initializeApp(firebaseConfig)
+const app = initializeApp(firebaseConfig)
 
 
 //init services
@@ -37,4 +36,33 @@ getDocs(colRef)
     })
     .catch((err) => {
         console.log(err.message)
+
+
+        //adding documents
+        const addBookForm = document.querySelector('.add');
+
+        console.log(addBookForm)
+
+        addBookForm.addEventListener('submit', (e) => {
+            e.preventDefault()
+
+            addDoc(colRef, {
+                title: addBookForm.title.value,
+                author: addBookForm.author.value,
+            })
+                .then(() => {
+                    addBookForm.reset()
+                })
+
+        });
+
+        //deleting documents
+        const deleteBookForm = document.querySelector('.delete');
+        deleteBookForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+
+        });
+
     });
+
