@@ -4,8 +4,16 @@ import {
     addDoc, deleteDoc, doc,
     query, where,
     orderBy, serverTimestamp,
-    
+    getDoc, updateDoc
 } from 'firebase/firestore'
+
+import {
+    getAuth,
+    createUserWithEmailAndPassword
+} from 'firebase/auth'
+
+
+
 const firebaseConfig = {
     apiKey: "AIzaSyBZAidQLhE_kW5s3jMh_3s8utXQM0hW5ds",
     authDomain: "new-project-2243a.firebaseapp.com",
@@ -21,13 +29,14 @@ const app = initializeApp(firebaseConfig)
 
 //init services
 const db = getFirestore()
+const auth = getAuth()
 
 
 //collection ref
 const colRef = collection(db, 'books')
 
 //query collection
-const q = query(colRef,  orderBy('createdAt'))
+const q = query(colRef, orderBy('createdAt'))
 
 //qureies
 onSnapshot(q, (snapshot) => {
@@ -85,3 +94,44 @@ deleteBookForm.addEventListener('submit', (e) => {
 
 //get a single document
 
+const docRef = doc(db, 'books', 'n9FqbQp7NhWhNEnUsrIx')
+
+getDoc(docRef)
+onSnapshot(docRef, (doc) => {
+    console.log(doc.data(), doc.id)
+})
+
+//updating a document
+
+const updateForm = document.querySelector('.update');
+
+updateForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const docRef = doc(db, 'books', updateForm.id.value);
+
+    updateDoc(docRef, {
+        title: 'updated title'
+    })
+        .then(() => {
+            updateForm.reset();
+        });
+});
+
+//signing users up
+const signUpForm = document.querySelector('.signup')
+signUpForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = signUpForm.email.value;
+    const password = signUpForm.password.value;
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((cred) => {
+            console.log('user created:', cred.user);
+            signUpForm.reset()
+        })
+        .catch((err) => {
+            console.log(err.message);
+        })
+
+})
