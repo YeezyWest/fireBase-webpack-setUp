@@ -9,7 +9,9 @@ import {
 
 import {
     getAuth,
-    createUserWithEmailAndPassword
+    createUserWithEmailAndPassword,
+    signOut, signInWithEmailAndPassword,
+    onAuthStateChanged
 } from 'firebase/auth'
 
 
@@ -39,7 +41,7 @@ const colRef = collection(db, 'books')
 const q = query(colRef, orderBy('createdAt'))
 
 //qureies
-onSnapshot(q, (snapshot) => {
+const unsubCol = onSnapshot(q, (snapshot) => {
     let books = [];
     snapshot.docs.forEach((doc) => {
         books.push({ ...doc.data(), id: doc.id })
@@ -96,8 +98,7 @@ deleteBookForm.addEventListener('submit', (e) => {
 
 const docRef = doc(db, 'books', 'n9FqbQp7NhWhNEnUsrIx')
 
-getDoc(docRef)
-onSnapshot(docRef, (doc) => {
+const unsubDoc = onSnapshot(docRef, (doc) => {
     console.log(doc.data(), doc.id)
 })
 
@@ -127,7 +128,7 @@ signUpForm.addEventListener('submit', (e) => {
 
     createUserWithEmailAndPassword(auth, email, password)
         .then((cred) => {
-            console.log('user created:', cred.user);
+            //  console.log('user created:', cred.user);
             signUpForm.reset()
         })
         .catch((err) => {
@@ -135,3 +136,53 @@ signUpForm.addEventListener('submit', (e) => {
         })
 
 })
+
+
+
+//logging in  and out
+const logoutButton = document.querySelector('.logout');
+logoutButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    signOut(auth)
+        .then(() => {
+            //  console.log('logged out');
+        })
+        .catch((err) => {
+            console.log(err.message)
+        });
+
+});
+
+const loginForm = document.querySelector('.login');
+loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = loginForm.email.value
+    const password = loginForm.password.value
+
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((cred) => {
+            //  console.log('User login successful:' , cred.user)
+        })
+        .catch((err) => {
+            console.log(err.message)
+        });
+
+});
+
+
+//subscribing to auth changes
+const unsubAuth = onAuthStateChanged(auth, (user) => {
+    console.log('user status changed: ', user);
+})
+
+
+//unsubscribing from auth changes (auth & db)
+const unsubButton = document.querySelector('.unsub');
+unsubButton.addEventListener('click', () => {
+    console.log('user unsubscribed')
+    // unsubCol()
+    // unsubDoc()
+    // unsubAuth()
+});
